@@ -7,28 +7,44 @@ from notifier.email_sender import send_email
 from notifier.config import default_from_email,default_password,default_to_email
 
 
+import os
+import pty
+
 def run_command(command, stream=True):
     if stream:
+        # 使用伪终端强制子进程行缓冲
+        master_fd, slave_fd = pty.openpty()
         process = subprocess.Popen(
             command,
             shell=True,
-            stdout=subprocess.PIPE,
+            stdout=slave_fd,
             stderr=subprocess.STDOUT,
             bufsize=1,
             universal_newlines=True,
-            executable="/bin/bash",  # 确保使用 bash，兼容性更好
+            executable="/bin/bash",
+            env={"PYTHONUNBUFFERED": "1", **os.environ}  # 注入环境变量
         )
+        os.close(slave_fd)  # 关闭子进程端，避免资源泄漏
+
         output_lines = []
         try:
-            for line in process.stdout:
-                print(line, end='', flush=True)  # ✅ 实时打印，刷新缓冲
-                output_lines.append(line)
-        except Exception as e:
-            print(f"读取输出时出错: {e}")
-        process.wait()
-        return_code = process.returncode
-        return return_code, ''.join(output_lines)
+            while True:
+                try:
+                    data = os.read(master_fd, 1024)
+                except OSError:
+                    break  # 当子进程关闭后读取会抛出异常
+                if not data:
+                    break
+                decoded = data.decode(errors='replace')
+                print(decoded, end='', flush=True)
+                output_lines.append(decoded)
+        finally:
+            os.close(master_fd)  # 确保关闭主端
+            process.wait()
+
+        return process.returncode, ''.join(output_lines)
     else:
+        # 非流模式保持原逻辑
         result = subprocess.run(
             command, shell=True,
             stdout=subprocess.PIPE,

@@ -17,9 +17,22 @@
 ---
 
 ## 📦 安装
-
+### 拉取项目代码
 ```bash
-cd project_root
+git clone https://github.com/asong1997/run_with_notify.git
+cd run_with_notify
+```
+
+### 配置[config.py](notifier/config.py)
+```bash
+default_from_email = "13360xxxx@163.com"
+default_password = "YGba3bxxxxjGSZT"
+default_to_email = "47382xxxx@qq.com"
+```
+
+### 源码安装
+```bash
+# 确保当前路径中有setup.py文件
 pip install .
 ```
 
@@ -31,12 +44,7 @@ pip install .
 
 ### 示例 1：下载 Hugging Face 模型（模拟长时间任务）
 ```bash
-run-with-notify "python download_model.py" \
-  --task "下载Qwen模型" \
-  --max-fails 3 \
-  --from-email your@163.com \
-  --password your_auth_code \
-  --to-email you@example.com
+run-with-notify "python download_model.py" --task "下载Qwen模型" --stream
 ```
 
 ### 示例 2：拉取 Docker 镜像
@@ -73,8 +81,9 @@ run-with-notify "bash train.sh" \
 | `--from-email` | str | ✅ 是 | 发件人邮箱（建议用 163 邮箱） |
 | `--password` | str | ✅ 是 | 发件人邮箱授权码（非登录密码） |
 | `--to-email` | str | ✅ 是 | 接收通知的邮箱地址 |
+| `--stream` | str | ❌ 否 | 是否将任务执行过程的 stdout/stderr 实时打印到终端 |
 
-注意：如果个人使用可以在[config.py](config.py)使用default参数，设置默认的from-email、password、to-email
+注意：如果个人使用可以在[config.py](notifier/config.py)使用default参数，设置默认的from-email、password、to-email
 ---
 
 ## 📬 邮件通知内容

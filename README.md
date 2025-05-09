@@ -14,6 +14,19 @@
 - 大文件上传、rsync / scp 等远程同步任务
 - 任意长时间执行的脚本（shell/python等）
 
+
+## 用法演示
+- 任务意图：下载"Qwen2.5-VL-3B-Instruct"模型。
+- 下载命令：python download_model.py
+- 通知邮件：47388*****@qq.com
+
+```bash
+run-with-notify "python download_model.py" --task "下载Qwen-VL模型" --to-email "47388*****@qq.com"
+```
+
+![img.png](img/example.png)
+
+
 ---
 
 ## 📦 安装
